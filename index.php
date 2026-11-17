@@ -30,6 +30,11 @@ if (empty($_SESSION["csrf_logout"])) {
     $_SESSION["csrf_logout"] = bin2hex(random_bytes(32));
 }
 
+// Generar token de seguridad para eliminar contactos
+if (empty($_SESSION["csrf_eliminar"])) {
+    $_SESSION["csrf_eliminar"] = bin2hex(random_bytes(32));
+}
+
 // ========================================
 // CONSULTAR LOS CONTACTOS DEL USUARIO
 // ========================================
@@ -118,6 +123,22 @@ try {
         </a>
     </p>
 
+    <!-- Mensaje después de eliminar un contacto -->
+    <?php if (($_GET["eliminado"] ?? "") === "1"): ?>
+
+        <p role="status">
+            Contacto eliminado correctamente.
+        </p>
+
+    <?php elseif (($_GET["eliminado"] ?? "") === "0"): ?>
+
+        <p role="alert">
+            No se eliminó el contacto.
+            Verifica que exista y te pertenezca.
+        </p>
+
+    <?php endif; ?>
+
     <!-- Mostrar errores de consulta -->
     <?php if ($error_contactos !== ""): ?>
 
@@ -147,6 +168,7 @@ try {
                     <th scope="col">Teléfono</th>
                     <th scope="col">Correo electrónico</th>
                     <th scope="col">Ciudad</th>
+                    <th scope="col">Acciones</th>
                 </tr>
             </thead>
 
@@ -186,6 +208,58 @@ try {
                                 ENT_QUOTES,
                                 'UTF-8'
                             ) ?>
+                        </td>
+
+                        <!-- Acciones disponibles para cada contacto -->
+                        <td>
+                            
+                            <!-- Editar contacto -->
+                            <form
+                                action="editar_contacto.php"
+                                method="GET"
+                                style="display: inline;"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="id"
+                                    value="<?= (int) $contacto["id"] ?>"
+                                >
+
+                                <button type="submit">
+                                    Editar
+                                </button>
+                            </form>
+
+                            <!-- Eliminar contacto -->
+                            <form
+                                action="eliminar_contacto.php"
+                                method="POST"
+                                style="display: inline;"
+                                onsubmit="return confirm('¿Estás seguro de que deseas eliminar este contacto? Esta acción no se puede deshacer.');"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="id"
+                                    value="<?= (int) $contacto["id"] ?>"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="<?= htmlspecialchars(
+                                        $_SESSION["csrf_eliminar"],
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>"
+                                >
+
+                                <button type="submit">
+                                    Eliminar
+                                </button>
+
+                            </form>
+
                         </td>
 
                     </tr>
