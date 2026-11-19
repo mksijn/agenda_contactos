@@ -1,3 +1,4 @@
+
 <?php
 // ========================================
 // AGENDA PERSONAL DE CONTACTOS
@@ -36,6 +37,17 @@ if (empty($_SESSION["csrf_eliminar"])) {
 }
 
 // ========================================
+// MEJORA A: BUSQUEDA DE CONTACTOS
+// ========================================
+
+// Obtener el texto ingresado en el formulario de búsqueda
+$busqueda = "";
+
+if (isset($_GET["buscar"]) && is_string($_GET["buscar"])) {
+    $busqueda = trim($_GET["buscar"]);
+}
+
+// ========================================
 // CONSULTAR LOS CONTACTOS DEL USUARIO
 // ========================================
 
@@ -44,21 +56,58 @@ $error_contactos = "";
 
 try {
 
-    // Consultar únicamente los contactos del usuario
+    // Consultar únicamente los contactos del usuario autenticado
     $sql = "SELECT id, nombre, telefono, correo, ciudad
             FROM contactos
-            WHERE id_usuario = :id_usuario
-            ORDER BY nombre ASC";
+            WHERE id_usuario = :id_usuario";
+
+    // Si se ingresó un texto, buscar en tres campos
+    if ($busqueda !== "") {
+
+        $sql .= " AND (
+                    nombre LIKE :buscar_nombre
+                    OR correo LIKE :buscar_correo
+                    OR ciudad LIKE :buscar_ciudad
+                  )";
+    }
+
+    // Mantener el orden alfabético por nombre
+    $sql .= " ORDER BY nombre ASC";
 
     // Preparar la consulta
     $consulta = $conexion->prepare($sql);
 
-    // Asociar el identificador del usuario
+    // Asociar el identificador del usuario autenticado
     $consulta->bindValue(
         ":id_usuario",
         $id_usuario,
         PDO::PARAM_INT
     );
+
+    // Asociar los valores de búsqueda cuando corresponda
+    if ($busqueda !== "") {
+
+        // Los porcentajes permiten encontrar coincidencias parciales
+        $texto_busqueda = "%" . $busqueda . "%";
+
+        $consulta->bindValue(
+            ":buscar_nombre",
+            $texto_busqueda,
+            PDO::PARAM_STR
+        );
+
+        $consulta->bindValue(
+            ":buscar_correo",
+            $texto_busqueda,
+            PDO::PARAM_STR
+        );
+
+        $consulta->bindValue(
+            ":buscar_ciudad",
+            $texto_busqueda,
+            PDO::PARAM_STR
+        );
+    }
 
     // Ejecutar la consulta
     $consulta->execute();
@@ -123,6 +172,48 @@ try {
         </a>
     </p>
 
+    <!-- ========================================
+         MEJORA A: FORMULARIO DE BUSQUEDA
+         ======================================== -->
+
+    <h3>Buscar contactos</h3>
+
+    <form action="index.php" method="GET">
+
+        <label for="buscar">
+            Buscar por nombre, correo o ciudad:
+        </label>
+
+        <input
+            type="search"
+            id="buscar"
+            name="buscar"
+            maxlength="190"
+            placeholder="Escribe tu búsqueda"
+            value="<?= htmlspecialchars(
+                $busqueda,
+                ENT_QUOTES,
+                'UTF-8'
+            ) ?>"
+        >
+
+        <button type="submit">
+            Buscar
+        </button>
+
+        <!-- Permitir mostrar nuevamente todos los contactos -->
+        <?php if ($busqueda !== ""): ?>
+
+            <a href="index.php">
+                Limpiar búsqueda
+            </a>
+
+        <?php endif; ?>
+
+    </form>
+
+    <hr>
+
     <!-- Mensaje después de eliminar un contacto -->
     <?php if (($_GET["eliminado"] ?? "") === "1"): ?>
 
@@ -150,12 +241,23 @@ try {
             ) ?>
         </p>
 
-    <!-- Mostrar mensaje cuando no existen contactos -->
+    <!-- Mostrar mensaje cuando no hay resultados -->
     <?php elseif (empty($contactos)): ?>
 
-        <p>
-            Todavía no tienes contactos registrados.
-        </p>
+        <?php if ($busqueda !== ""): ?>
+
+            <p>
+                No se encontraron contactos
+                que coincidan con la búsqueda.
+            </p>
+
+        <?php else: ?>
+
+            <p>
+                Todavía no tienes contactos registrados.
+            </p>
+
+        <?php endif; ?>
 
     <!-- Mostrar tabla de contactos -->
     <?php else: ?>
@@ -210,15 +312,16 @@ try {
                             ) ?>
                         </td>
 
-                        <!-- Acciones disponibles para cada contacto -->
+                        <!-- Acciones del contacto -->
                         <td>
-                            
-                            <!-- Editar contacto -->
+
+                            <!-- Formulario para editar -->
                             <form
                                 action="editar_contacto.php"
                                 method="GET"
                                 style="display: inline;"
                             >
+
                                 <input
                                     type="hidden"
                                     name="id"
@@ -228,9 +331,10 @@ try {
                                 <button type="submit">
                                     Editar
                                 </button>
+
                             </form>
 
-                            <!-- Eliminar contacto -->
+                            <!-- Formulario para eliminar -->
                             <form
                                 action="eliminar_contacto.php"
                                 method="POST"
