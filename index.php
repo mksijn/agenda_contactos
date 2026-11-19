@@ -40,12 +40,37 @@ if (empty($_SESSION["csrf_eliminar"])) {
 // MEJORA A: BUSQUEDA DE CONTACTOS
 // ========================================
 
-// Obtener el texto ingresado en el formulario de búsqueda
+// Obtener el texto ingresado en el buscador
 $busqueda = "";
 
 if (isset($_GET["buscar"]) && is_string($_GET["buscar"])) {
     $busqueda = trim($_GET["buscar"]);
 }
+
+// ========================================
+// MEJORA B: ORDENAMIENTO DE CONTACTOS
+// ========================================
+
+// Definir los campos permitidos para ordenar
+$ordenes_permitidos = [
+    "nombre" => "nombre",
+    "ciudad" => "ciudad"
+];
+
+// El orden predeterminado será por nombre
+$orden = "nombre";
+
+// Comprobar la opción seleccionada por el usuario
+if (
+    isset($_GET["orden"]) &&
+    is_string($_GET["orden"]) &&
+    array_key_exists($_GET["orden"], $ordenes_permitidos)
+) {
+    $orden = $_GET["orden"];
+}
+
+// Utilizar exclusivamente un campo permitido
+$columna_orden = $ordenes_permitidos[$orden];
 
 // ========================================
 // CONSULTAR LOS CONTACTOS DEL USUARIO
@@ -61,7 +86,7 @@ try {
             FROM contactos
             WHERE id_usuario = :id_usuario";
 
-    // Si se ingresó un texto, buscar en tres campos
+    // Aplicar la búsqueda cuando exista texto ingresado
     if ($busqueda !== "") {
 
         $sql .= " AND (
@@ -71,8 +96,9 @@ try {
                   )";
     }
 
-    // Mantener el orden alfabético por nombre
-    $sql .= " ORDER BY nombre ASC";
+    // Ordenar según la opción seleccionada
+    // La columna procede de una lista de valores permitidos
+    $sql .= " ORDER BY $columna_orden ASC, nombre ASC, id ASC";
 
     // Preparar la consulta
     $consulta = $conexion->prepare($sql);
@@ -84,10 +110,9 @@ try {
         PDO::PARAM_INT
     );
 
-    // Asociar los valores de búsqueda cuando corresponda
+    // Asociar los valores del buscador
     if ($busqueda !== "") {
 
-        // Los porcentajes permiten encontrar coincidencias parciales
         $texto_busqueda = "%" . $busqueda . "%";
 
         $consulta->bindValue(
@@ -173,13 +198,14 @@ try {
     </p>
 
     <!-- ========================================
-         MEJORA A: FORMULARIO DE BUSQUEDA
+         MEJORAS A Y B: BUSQUEDA Y ORDENAMIENTO
          ======================================== -->
 
-    <h3>Buscar contactos</h3>
+    <h3>Buscar y ordenar contactos</h3>
 
     <form action="index.php" method="GET">
 
+        <!-- Campo de búsqueda -->
         <label for="buscar">
             Buscar por nombre, correo o ciudad:
         </label>
@@ -197,14 +223,39 @@ try {
             ) ?>"
         >
 
+        <br><br>
+
+        <!-- Selector de ordenamiento -->
+        <label for="orden">
+            Ordenar contactos por:
+        </label>
+
+        <select id="orden" name="orden">
+
+            <option
+                value="nombre"
+                <?= $orden === "nombre" ? "selected" : "" ?>
+            >
+                Nombre
+            </option>
+
+            <option
+                value="ciudad"
+                <?= $orden === "ciudad" ? "selected" : "" ?>
+            >
+                Ciudad
+            </option>
+
+        </select>
+
         <button type="submit">
-            Buscar
+            Aplicar
         </button>
 
-        <!-- Permitir mostrar nuevamente todos los contactos -->
+        <!-- Limpiar búsqueda conservando el orden seleccionado -->
         <?php if ($busqueda !== ""): ?>
 
-            <a href="index.php">
+            <a href="index.php?orden=<?= urlencode($orden) ?>">
                 Limpiar búsqueda
             </a>
 
@@ -241,7 +292,7 @@ try {
             ) ?>
         </p>
 
-    <!-- Mostrar mensaje cuando no hay resultados -->
+    <!-- Mostrar mensaje cuando no hay contactos -->
     <?php elseif (empty($contactos)): ?>
 
         <?php if ($busqueda !== ""): ?>
@@ -312,10 +363,10 @@ try {
                             ) ?>
                         </td>
 
-                        <!-- Acciones del contacto -->
+                        <!-- Acciones disponibles para cada contacto -->
                         <td>
 
-                            <!-- Formulario para editar -->
+                            <!-- Editar contacto -->
                             <form
                                 action="editar_contacto.php"
                                 method="GET"
@@ -334,7 +385,7 @@ try {
 
                             </form>
 
-                            <!-- Formulario para eliminar -->
+                            <!-- Eliminar contacto -->
                             <form
                                 action="eliminar_contacto.php"
                                 method="POST"
