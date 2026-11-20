@@ -1,23 +1,32 @@
 
--- Base de datos: Agenda Personal de Contactos
+-- ========================================
+-- AGENDA PERSONAL DE CONTACTOS
 -- Asignatura: Desarrollo Web - UTPL
+-- ========================================
 
-CREATE DATABASE IF NOT EXISTS agenda_contactos
-CHARACTER SET utf8mb4
-COLLATE utf8mb4_unicode_ci;
+-- IMPORTANTE:
+-- Seleccionar o crear la base de datos
+-- antes de ejecutar este script.
+-- Compatible con XAMPP e InfinityFree.
 
-USE agenda_contactos;
+-- ========================================
+-- TABLA DE USUARIOS
+-- ========================================
 
--- Tabla de usuarios
 CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(120) NOT NULL,
     correo VARCHAR(190) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
 
--- Tabla de contactos
+-- ========================================
+-- TABLA DE CONTACTOS
+-- ========================================
+
 CREATE TABLE contactos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT NOT NULL,
@@ -26,8 +35,11 @@ CREATE TABLE contactos (
     correo VARCHAR(190) NOT NULL,
     ciudad VARCHAR(100) NOT NULL,
 
+    -- Relacionar cada contacto con su propietario
     CONSTRAINT fk_contactos_usuarios
     FOREIGN KEY (id_usuario)
     REFERENCES usuarios(id)
     ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
