@@ -3,14 +3,28 @@
 
 ## Descripción
 
-Aplicación web desarrollada como parte de la asignatura
-Desarrollo Web de la Universidad Técnica Particular de Loja (UTPL).
+Aplicación web desarrollada para la asignatura Desarrollo Web de la
+Universidad Técnica Particular de Loja (UTPL).
 
-El sistema permite registrar usuarios y administrar una agenda
-personal de contactos mediante una interfaz web.
+El sistema permite registrar usuarios y administrar una agenda personal
+de contactos mediante PHP y MySQL.
 
-Cada usuario puede consultar y gestionar únicamente sus propios
-contactos, utilizando un sistema de autenticación basado en sesiones.
+Cada usuario puede gestionar únicamente sus propios contactos.
+
+Esta segunda versión incorpora nuevas funcionalidades de búsqueda
+y ordenamiento, además del despliegue en un hosting gratuito.
+
+## Aplicación publicada
+
+La aplicación se encuentra disponible en Internet:
+
+https://agenda-contactos-utpl.site.je
+
+## Repositorio de GitHub
+
+Código fuente del proyecto:
+
+https://github.com/mksijn/agenda_contactos
 
 ## Tecnologías utilizadas
 
@@ -19,13 +33,14 @@ contactos, utilizando un sistema de autenticación basado en sesiones.
 - MySQL / MariaDB
 - PDO para la conexión con la base de datos
 - JavaScript para confirmar la eliminación de contactos
-- XAMPP como entorno de desarrollo local
-- Git para el control de versiones
+- XAMPP para el desarrollo local
+- Git y GitHub para el control de versiones
+- InfinityFree como servicio de hosting gratuito
 
-## Funcionalidades
+## Funcionalidades principales
 
 - Registro de usuarios con correo electrónico único.
-- Almacenamiento seguro de contraseñas mediante password_hash().
+- Almacenamiento de contraseñas mediante password_hash().
 - Inicio de sesión mediante password_verify().
 - Protección de páginas privadas mediante sesiones PHP.
 - Visualización de contactos del usuario autenticado.
@@ -33,14 +48,54 @@ contactos, utilizando un sistema de autenticación basado en sesiones.
 - Edición de contactos existentes.
 - Eliminación de contactos con confirmación.
 - Validación de formularios en el servidor.
-- Consultas preparadas para trabajar con MySQL.
-- Verificación de propiedad antes de editar o eliminar contactos.
+- Consultas preparadas mediante PDO.
+- Verificación de propiedad de los contactos.
 - Protección CSRF en operaciones sensibles.
-- Cierre seguro de sesión.
+- Cierre de sesión.
 
-## Requisitos
+## Mejoras respecto a la versión anterior
 
-Para ejecutar el proyecto se necesita:
+### Mejora A. Búsqueda de contactos
+
+Se incorporó un formulario de búsqueda que permite localizar
+contactos mediante los siguientes campos:
+
+- Nombre.
+- Correo electrónico.
+- Ciudad.
+
+La búsqueda admite coincidencias parciales y muestra únicamente
+los contactos del usuario autenticado.
+
+También se incorporó la opción de limpiar la búsqueda.
+
+### Mejora B. Ordenamiento de contactos
+
+Se incorporó un selector que permite organizar los contactos por:
+
+- Nombre.
+- Ciudad.
+
+El ordenamiento es alfabético y puede utilizarse junto con
+la funcionalidad de búsqueda.
+
+Ambas mejoras fueron comprobadas en el entorno local y en InfinityFree.
+
+## Capturas de pantalla
+
+### Búsqueda de contactos
+
+La siguiente captura muestra la búsqueda de contactos por ciudad.
+
+![Búsqueda de contactos](capturas/busqueda.png)
+
+### Ordenamiento de contactos
+
+La siguiente captura muestra los contactos ordenados por ciudad.
+
+![Ordenamiento de contactos](capturas/ordenamiento.png)
+
+## Requisitos para la instalación local
 
 - Servidor web Apache.
 - PHP 8 con extensiones PDO y pdo_mysql.
@@ -48,12 +103,12 @@ Para ejecutar el proyecto se necesita:
 - Navegador web.
 - XAMPP o un entorno equivalente.
 
-## Instalación
+## Instrucciones de instalación local
 
-### 1. Copiar el proyecto
+### 1. Obtener el proyecto
 
-Copiar la carpeta agenda_contactos dentro del directorio
-htdocs de XAMPP.
+Descargar el repositorio de GitHub y copiar la carpeta
+agenda_contactos dentro del directorio htdocs de XAMPP.
 
 Ejemplo en Windows:
 
@@ -61,21 +116,25 @@ C:\xampp\htdocs\agenda_contactos
 
 ### 2. Iniciar los servicios
 
-Abrir el panel de control de XAMPP e iniciar:
+Abrir XAMPP Control Panel e iniciar:
 
-- Apache
-- MySQL
+- Apache.
+- MySQL.
 
-### 3. Configurar la base de datos
+### 3. Crear la base de datos
 
 Abrir phpMyAdmin:
 
 http://localhost/phpmyadmin/
 
-Crear una base de datos llamada agenda_contactos si todavía
-no existe.
+Crear una base de datos llamada:
 
-Importar el archivo agenda_contactos.sql incluido en el proyecto.
+agenda_contactos
+
+Seleccionar la base de datos creada e importar
+el archivo agenda_contactos.sql.
+
+Este script crea las tablas usuarios y contactos.
 
 ### 4. Configurar la conexión
 
@@ -87,47 +146,74 @@ Renombrar la copia como:
 
 conexion.php
 
-Editar conexion.php y colocar los datos de conexión
-correspondientes al servidor MySQL o MariaDB utilizado.
+Editar conexion.php y configurar:
 
-No es necesario modificar el archivo original de ejemplo.
+- Servidor de MySQL.
+- Nombre de la base de datos.
+- Usuario de MySQL.
+- Contraseña de MySQL.
+
+Utilizar las credenciales correspondientes a la instalación local.
+
+El archivo conexion.php no se incluye en GitHub para evitar
+publicar credenciales privadas.
 
 ### 5. Ejecutar la aplicación
 
-Abrir el navegador e ingresar a:
+Abrir en el navegador:
 
 http://localhost/agenda_contactos/
 
-Registrar una cuenta para comenzar a utilizar la agenda.
+Registrar una cuenta para comenzar a utilizar el sistema.
+
+## Despliegue en hosting gratuito
+
+La aplicación fue publicada en InfinityFree.
+
+Para el despliegue se realizaron las siguientes actividades:
+
+1. Crear una cuenta de hosting gratuito.
+2. Configurar un subdominio público.
+3. Crear una base de datos MySQL en InfinityFree.
+4. Importar el archivo agenda_contactos.sql.
+5. Subir los archivos PHP al directorio htdocs.
+6. Configurar la conexión MySQL del hosting.
+7. Comprobar el funcionamiento de la aplicación.
+
+Se verificaron el registro, inicio de sesión, creación,
+edición y eliminación de contactos, así como las mejoras
+de búsqueda y ordenamiento.
 
 ## Seguridad
 
 La aplicación utiliza sesiones PHP para identificar a los usuarios.
 
-Las contraseñas se almacenan mediante hash y no como texto plano.
+Las contraseñas se almacenan mediante funciones de hash.
 
-Las operaciones sobre contactos comprueban el identificador
-del usuario autenticado para impedir el acceso a contactos ajenos.
+Las consultas sobre contactos verifican el identificador
+del usuario autenticado para impedir accesos no autorizados.
 
 Se utilizan consultas preparadas y tokens CSRF para reforzar
-la protección de las operaciones.
+la seguridad de las operaciones.
 
-## Estructura principal
+## Estructura del proyecto
 
-- index.php: panel principal y listado de contactos.
+- index.php: panel principal, búsqueda y ordenamiento.
 - registro.php: registro de usuarios.
 - login.php: inicio de sesión.
 - logout.php: cierre de sesión.
-- nuevo_contacto.php: registro de contactos.
+- nuevo_contacto.php: creación de contactos.
 - editar_contacto.php: edición de contactos.
 - eliminar_contacto.php: eliminación de contactos.
 - agenda_contactos.sql: estructura de la base de datos.
 - config/conexion.ejemplo.php: plantilla de conexión.
+- capturas/busqueda.png: evidencia de búsqueda.
+- capturas/ordenamiento.png: evidencia de ordenamiento.
 
 ## Consideraciones
 
-El proyecto está desarrollado para fines académicos y se ha
-probado en un entorno local con XAMPP.
+Proyecto desarrollado con fines académicos para la asignatura
+Desarrollo Web de la Universidad Técnica Particular de Loja.
 
-El archivo config/conexion.php está excluido del repositorio
-para evitar publicar información de configuración privada.
+La aplicación puede ejecutarse localmente mediante XAMPP
+o utilizarse desde su dirección pública en InfinityFree.
