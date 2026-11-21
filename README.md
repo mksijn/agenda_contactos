@@ -87,13 +87,13 @@ Ambas mejoras fueron comprobadas en el entorno local y en InfinityFree.
 
 La siguiente captura muestra la búsqueda de contactos por ciudad.
 
-![Búsqueda de contactos](capturas/busqueda.png)
+![Búsqueda de contactos](capturas/busqueda.PNG)
 
 ### Ordenamiento de contactos
 
 La siguiente captura muestra los contactos ordenados por ciudad.
 
-![Ordenamiento de contactos](capturas/ordenamiento.png)
+![Ordenamiento de contactos](capturas/ordenamiento.PNG)
 
 ## Requisitos para la instalación local
 
@@ -207,8 +207,8 @@ la seguridad de las operaciones.
 - eliminar_contacto.php: eliminación de contactos.
 - agenda_contactos.sql: estructura de la base de datos.
 - config/conexion.ejemplo.php: plantilla de conexión.
-- capturas/busqueda.png: evidencia de búsqueda.
-- capturas/ordenamiento.png: evidencia de ordenamiento.
+- capturas/busqueda.PNG: evidencia de búsqueda.
+- capturas/ordenamiento.PNG: evidencia de ordenamiento.
 
 ## Consideraciones
 
